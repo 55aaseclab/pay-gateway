@@ -242,8 +242,9 @@ impl PaymentProvider for WechatNativeProvider {
             Ok(Payment::Qr { code_url })
         } else {
             Err(ProviderError::Upstream(format!(
-                "native order failed: {status} {}",
-                v["message"].as_str().unwrap_or("")
+                "native order failed: {status} {} | full: {}",
+                v["message"].as_str().unwrap_or(""),
+                v
             )))
         }
     }
