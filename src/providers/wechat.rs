@@ -102,7 +102,8 @@ impl WechatNativeProvider {
         if !body_str.is_empty() {
             req = req
                 .header("Content-Type", "application/json")
-                .header("Accept", "application/json");
+                .header("Accept", "application/json")
+                .body(body_str); // ← 签名覆盖的 body 必须真正随请求发出
         }
         let resp = req.send().await.map_err(|e| ProviderError::Upstream(e.to_string()))?;
         let status = resp.status().as_u16();
