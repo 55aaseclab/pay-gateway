@@ -98,12 +98,14 @@ impl WechatNativeProvider {
             &body_str,
         )?;
         let url = format!("{}{}", self.cfg.api_base, path_with_query);
-        let mut req = self.http.request(method, &url).header("Authorization", auth);
+        // 微信部分节点强制要求 Accept/User-Agent 头（缺失返回 400），GET 一律携带
+        let mut req = self
+            .http
+            .request(method, &url)
+            .header("Authorization", auth)
+            .header("Accept", "application/json");
         if !body_str.is_empty() {
-            req = req
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(body_str); // ← 签名覆盖的 body 必须真正随请求发出
+            req = req.header("Content-Type", "application/json").body(body_str); // ← 签名覆盖的 body 必须真正随请求发出
         }
         let resp = req.send().await.map_err(|e| ProviderError::Upstream(e.to_string()))?;
         let status = resp.status().as_u16();
