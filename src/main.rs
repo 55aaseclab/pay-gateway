@@ -217,11 +217,17 @@ async fn submit(
     match payment {
         Payment::Qr { code_url } => {
             let money_yuan = format!("{:.2}", money_cents as f64 / 100.0);
+            // PRD 3.1.4：支付成功回到钱包页。new-api 上游 return_url 写死 /usage-logs，
+            // 网关侧用 RETURN_PATH 覆盖（不配置则沿用上游 return_url）
+            let return_target = match std::env::var("RETURN_PATH") {
+                Ok(p) if !p.is_empty() => format!("{}/{}", st.notify_base.trim_end_matches('/'), p.trim_start_matches('/')),
+                _ => order.return_url.clone(),
+            };
             Html(page::cashier_html_with_qr(
                 &out_trade_no,
                 &order.subject,
                 &money_yuan,
-                &order.return_url,
+                &return_target,
                 &code_url,
             ))
             .into_response()
