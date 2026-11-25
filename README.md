@@ -32,12 +32,12 @@ cargo run
 curl -s localhost:8787/healthz
 ```
 
-## 部署（pay.55aaseclab.com）
+## 部署
 
-1. DNS A 记录 pay → 165.154.203.40
+1. DNS A 记录 pay 子域 → 服务器公网 IP
 2. 服务器 `/opt/epay-deploy/`：`docker-compose.yml` + `.env`（cp .env.example，填真实商户凭据，chmod 600）
 3. nginx server 块：TLS（复用通配符证书）→ 反代 127.0.0.1:8787
-4. new-api 后台支付设置：`PayAddress=https://pay.55aaseclab.com`，EpayId/EpayKey 与 .env 一致
+4. new-api 后台支付设置：`PayAddress=https://pay.example.com`，EpayId/EpayKey 与 .env 一致
 5. 验证：0.01 元真实下单 → 扫码 → 回调入账 → 钱包余额 + 订单表
 
 ## 设计红线

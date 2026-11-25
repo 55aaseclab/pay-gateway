@@ -31,7 +31,7 @@ struct AppState {
     epay_pid: String,
     epay_key: String,
     http: reqwest::Client,
-    /// 回调基底（如 https://pay.55aaseclab.com），用于构造微信 notify_url
+    /// 回调基底（如 https://pay.example.com），用于构造微信 notify_url
     notify_base: String,
 }
 

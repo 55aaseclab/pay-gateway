@@ -39,7 +39,7 @@ pub struct WechatConfig {
     pub api_v3_key: String,
     /// 默认 https://api.mch.weixin.qq.com（测试可指向 mock）
     pub api_base: String,
-    /// 回调基底，如 https://pay.55aaseclab.com
+    /// 回调基底，如 https://pay.example.com
     pub notify_base: String,
 }
 
