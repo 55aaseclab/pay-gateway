@@ -53,7 +53,7 @@ async fn main() {
         appid: std::env::var("WXPAY_APPID").expect("WXPAY_APPID required"),
         mch_id: std::env::var("WXPAY_MCH_ID").expect("WXPAY_MCH_ID required"),
         serial_no: std::env::var("WXPAY_SERIAL_NO").expect("WXPAY_SERIAL_NO required"),
-        private_key_pem: std::env::var("WXPAY_PRIVATE_KEY").expect("WXPAY_PRIVATE_KEY required"),
+        private_key_pem: resolve_private_key_pem(),
         api_v3_key: std::env::var("WXPAY_APIV3_KEY").expect("WXPAY_APIV3_KEY required"),
         api_base: std::env::var("WXPAY_API_BASE")
             .unwrap_or_else(|_| "https://api.mch.weixin.qq.com".into()),
@@ -96,6 +96,26 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&bind).await.expect("bind");
     tracing::info!("pay-gateway listening on {bind}");
     axum::serve(listener, app).await.unwrap();
+}
+
+/// 商户私钥三种填法（按优先级）：
+/// 1. WXPAY_PRIVATE_KEY_FILE=/path/apiclient_key.pem（推荐，文件直读）
+/// 2. WXPAY_PRIVATE_KEY_FILE_B64=base64(整段 PEM)（scp 不便时）
+/// 3. WXPAY_PRIVATE_KEY=单行 PEM（换行写作 \n，此字段自动还原）
+fn resolve_private_key_pem() -> String {
+    if let Ok(path) = std::env::var("WXPAY_PRIVATE_KEY_FILE") {
+        return std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("read {path}: {e}"));
+    }
+    if let Ok(b64) = std::env::var("WXPAY_PRIVATE_KEY_FILE_B64") {
+        use base64::Engine;
+        return base64::engine::general_purpose::STANDARD
+            .decode(b64.trim())
+            .map(|b| String::from_utf8(b).expect("pem utf8"))
+            .expect("decode WXPAY_PRIVATE_KEY_FILE_B64");
+    }
+    let inline = std::env::var("WXPAY_PRIVATE_KEY").expect("set WXPAY_PRIVATE_KEY_FILE or WXPAY_PRIVATE_KEY");
+    inline.replace("\\n", "\n")
 }
 
 async fn healthz() -> &'static str {
