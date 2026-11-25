@@ -220,7 +220,8 @@ async fn submit(
             // PRD 3.1.4：支付成功回到钱包页。new-api 上游 return_url 写死 /usage-logs，
             // 网关侧用 RETURN_PATH 覆盖（不配置则沿用上游 return_url）
             let return_target = match std::env::var("RETURN_PATH") {
-                Ok(p) if !p.is_empty() => format!("{}/{}", st.notify_base.trim_end_matches('/'), p.trim_start_matches('/')),
+                // 完整 URL（含站点），如 https://<控制台域名>/console/topup
+                Ok(p) if !p.is_empty() => p,
                 _ => order.return_url.clone(),
             };
             Html(page::cashier_html_with_qr(
