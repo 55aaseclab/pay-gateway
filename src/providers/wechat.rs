@@ -231,6 +231,7 @@ impl PaymentProvider for WechatNativeProvider {
             "notify_url": req.notify_url,
             "amount": { "total": req.amount_cents, "currency": "CNY" },
         });
+        tracing::info!("wechat native order body: {}", body);
         let (status, v) = self
             .api_request(reqwest::Method::POST, "/v3/pay/transactions/native", &body)
             .await?;
