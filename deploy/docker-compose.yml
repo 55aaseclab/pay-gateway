@@ -6,6 +6,7 @@ services:
     env_file: .env
     volumes:
       - ./data:/data
+      - ./apiclient_key.pem:/run/secrets/wx-apiclient-key.pem:ro
     network_mode: bridge
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/8787'"]
